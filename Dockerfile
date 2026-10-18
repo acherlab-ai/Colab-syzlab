@@ -1,12 +1,5 @@
-# Stage 1: Build Frontend Assets
-FROM node:20-slim AS frontend-builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm install
-COPY . .
-RUN npm run build
-
-# Stage 2: Production Python Runner (Ultra-lightweight < 150MB RAM)
+# Suzlab Colab Production Dockerfile for Railway
+# Ultra-lightweight memory profile (< 150MB RAM total)
 FROM python:3.12-slim
 
 ENV PYTHONUNBUFFERED=1 \
@@ -30,9 +23,8 @@ RUN apt-get update -qq && \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy source code and built frontend dist from Stage 1
+# Copy source code, templates, and pre-built frontend distribution
 COPY . .
-COPY --from=frontend-builder /app/dist /app/dist
 
 # Expose service port
 EXPOSE 8080
