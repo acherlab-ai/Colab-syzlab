@@ -1,7 +1,11 @@
+export type NavSection = 'home' | 'dashboard' | 'ssh' | 'telegram' | 'pricing';
+
 export interface User {
   id: string;
   email: string;
   username: string;
+  avatar_url?: string;
+  google_verified?: boolean;
   tier: 'free' | 'standard' | 'pro';
   colab_connected: boolean;
   colab_email: string;

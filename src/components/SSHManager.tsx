@@ -1,14 +1,18 @@
 import React, { useState } from 'react';
+import { Copy, Check, UserPlus, Key, Shuffle } from 'lucide-react';
 import { ColabSession, SSHUser } from '../types';
+import { TranslationStrings } from '../i18n';
 
 interface SSHManagerProps {
   session: ColabSession;
+  t: TranslationStrings;
   onCreateUser: (username: string, password: string) => Promise<void>;
   onChangePassword: (username: string, newPassword: string) => Promise<void>;
 }
 
 export const SSHManager: React.FC<SSHManagerProps> = ({
   session,
+  t,
   onCreateUser,
   onChangePassword
 }) => {
@@ -37,10 +41,7 @@ export const SSHManager: React.FC<SSHManagerProps> = ({
   const handleQuickAdd = async (randomPwd: boolean) => {
     const nextIdx = (session.ssh_users?.length || 1) + 1;
     const uname = `user${nextIdx}`;
-    let pwd = '123456';
-    if (randomPwd) {
-      pwd = Math.random().toString(36).substring(2, 8);
-    }
+    const pwd = randomPwd ? Math.random().toString(36).substring(2, 8) : '123456';
     setLoading(true);
     try {
       await onCreateUser(uname, pwd);
@@ -73,140 +74,130 @@ export const SSHManager: React.FC<SSHManagerProps> = ({
     }
   };
 
+  const userList: SSHUser[] = session.ssh_users || [
+    { username: 'colab', role: 'root', created_at: 'Init' }
+  ];
+
   return (
-    <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 sm:p-8 backdrop-blur-sm space-y-6">
-      {/* SSH Connection Snippet */}
+    <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 sm:p-6 space-y-6">
+      {/* SSH Command Box */}
       <div>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-800 gap-2">
           <div>
-            <h2 className="text-base font-bold text-white flex items-center gap-2">
-              <span>📋</span>
-              <span>Thông Tin Kết Nối SSH Trực Tiếp</span>
-            </h2>
-            <p className="text-xs text-slate-400 mt-0.5">
-              Kết nối từ máy tính của bạn bằng OpenSSH, PuTTY, Tabby hoặc VSCode Remote SSH.
-            </p>
+            <h2 className="text-base sm:text-lg font-bold text-white">{t.ssh.title}</h2>
+            <p className="text-xs text-slate-400 mt-0.5">{t.ssh.subtitle}</p>
           </div>
 
-          <div className="flex items-center gap-2 text-xs font-mono">
-            <span className="text-slate-400">Tunnel:</span>
-            <span className="text-cyan-400 font-bold uppercase">{session.tunnel_mode}</span>
-            <span className="text-slate-600">|</span>
-            <span className="text-slate-400">Host:</span>
-            <span className="text-white font-bold">{sshHost}</span>
-            <span className="text-slate-600">|</span>
-            <span className="text-slate-400">Port:</span>
-            <span className="text-amber-400 font-bold">{sshPort}</span>
+          <div className="flex items-center gap-2 text-xs font-mono text-slate-400">
+            <span>Host: <b className="text-white">{sshHost}</b></span>
+            <span>·</span>
+            <span>Port: <b className="text-amber-400 tabular-nums">{sshPort}</b></span>
           </div>
         </div>
 
-        {/* 1-Click Copy Command Box */}
-        <div className="mt-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between p-3.5 rounded-xl border border-slate-800 bg-slate-950/80 gap-3">
-          <div className="flex items-center gap-3 overflow-x-auto font-mono text-xs text-emerald-400">
-            <span className="text-slate-500 select-none">$</span>
-            <span className="font-semibold select-all whitespace-nowrap">{primaryCommand}</span>
+        <div className="mt-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between p-3.5 rounded-xl border border-slate-800 bg-slate-950 gap-3">
+          <div className="font-mono text-xs sm:text-sm text-emerald-400 font-semibold truncate">
+            $ {primaryCommand}
           </div>
           <button
+            type="button"
             onClick={() => copyCommand(primaryCommand)}
-            className="px-4 py-2 text-xs font-semibold text-slate-950 bg-cyan-400 hover:bg-cyan-300 rounded-lg transition-colors whitespace-nowrap shrink-0 flex items-center justify-center gap-1.5"
+            className="min-h-[42px] px-4 py-2 text-xs font-extrabold text-slate-950 bg-cyan-400 hover:bg-cyan-300 rounded-xl transition-colors flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0"
           >
-            <span>{copiedSSH ? '✓' : '📋'}</span>
-            <span>{copiedSSH ? 'Đã Copy Lệnh' : 'Copy 1-Chạm'}</span>
+            {copiedSSH ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            <span>{copiedSSH ? t.telemetry.copiedBtn : t.ssh.copyCmdBtn}</span>
           </button>
         </div>
       </div>
 
-      {/* SSH User Management Table */}
-      <div className="pt-2">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 gap-3">
+      {/* SSH User Controls */}
+      <div className="space-y-4">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
           <div>
-            <h3 className="text-sm font-bold text-white flex items-center gap-2">
-              <span>👥</span>
-              <span>Danh Sách Tài Khoản SSH Trên Máy Ảo</span>
-            </h3>
-            <p className="text-xs text-slate-400 mt-0.5">
-              Mỗi user đều được cấp quyền sudo NOPASSWD:ALL độc lập.
-            </p>
+            <h3 className="text-sm font-bold text-white">{t.ssh.usersTitle}</h3>
+            <p className="text-xs text-slate-400 mt-0.5">{t.ssh.usersSubtitle}</p>
           </div>
 
-          {/* User action buttons */}
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2">
             <button
+              type="button"
               onClick={() => handleQuickAdd(false)}
               disabled={loading}
-              className="px-3 py-1.5 text-xs font-semibold text-slate-200 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 border border-slate-700 rounded-lg transition-colors whitespace-nowrap"
+              className="min-h-[40px] px-3 py-2 text-xs font-semibold text-slate-200 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl transition-colors whitespace-nowrap"
             >
-              ⚡ Tạo nhanh (MK: 123456)
+              {t.ssh.quickAddBtn}
             </button>
             <button
+              type="button"
               onClick={() => handleQuickAdd(true)}
               disabled={loading}
-              className="px-3 py-1.5 text-xs font-semibold text-slate-200 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 border border-slate-700 rounded-lg transition-colors whitespace-nowrap"
+              className="min-h-[40px] px-3 py-2 text-xs font-semibold text-slate-200 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl transition-colors whitespace-nowrap flex items-center justify-center gap-1"
             >
-              🎲 Tạo nhanh (MK Ngẫu nhiên)
+              <Shuffle className="w-3.5 h-3.5 text-cyan-400" />
+              <span>{t.ssh.randomAddBtn}</span>
             </button>
             <button
+              type="button"
               onClick={() => setShowAddModal(true)}
               disabled={loading}
-              className="px-3 py-1.5 text-xs font-semibold text-cyan-300 bg-cyan-950/60 hover:bg-cyan-900/80 disabled:opacity-50 border border-cyan-800/60 rounded-lg transition-colors whitespace-nowrap"
+              className="min-h-[40px] px-3 py-2 text-xs font-semibold text-cyan-300 bg-cyan-950/60 hover:bg-cyan-900/80 border border-cyan-800/60 rounded-xl transition-colors whitespace-nowrap flex items-center justify-center gap-1"
             >
-              ✍️ Tạo User tùy chỉnh
+              <UserPlus className="w-3.5 h-3.5" />
+              <span>{t.ssh.customAddBtn}</span>
             </button>
             <button
+              type="button"
               onClick={() => setShowPasswordModal({ open: true, targetUser: 'ALL' })}
               disabled={loading}
-              className="px-3 py-1.5 text-xs font-semibold text-amber-300 bg-amber-950/60 hover:bg-amber-900/80 disabled:opacity-50 border border-amber-800/60 rounded-lg transition-colors whitespace-nowrap"
+              className="min-h-[40px] px-3 py-2 text-xs font-semibold text-amber-300 bg-amber-950/60 hover:bg-amber-900/80 border border-amber-800/60 rounded-xl transition-colors whitespace-nowrap flex items-center justify-center gap-1"
             >
-              🔑 Đổi MK Tất Cả User
+              <Key className="w-3.5 h-3.5" />
+              <span>{t.ssh.changeAllPwdBtn}</span>
             </button>
           </div>
         </div>
 
-        {/* Users Table */}
-        <div className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950/40">
+        {/* DESKTOP VIEW: High-Density Tabular Grid */}
+        <div className="hidden sm:block overflow-x-auto rounded-xl border border-slate-800 bg-slate-950/50">
           <table className="w-full text-left text-xs">
-            <thead className="border-b border-slate-800 bg-slate-900/60 text-slate-400 font-mono text-[11px] uppercase">
+            <thead className="border-b border-slate-800 bg-slate-900/80 text-slate-400 font-mono text-[11px] uppercase">
               <tr>
-                <th className="py-2.5 px-4">Tên User SSH</th>
-                <th className="py-2.5 px-4">Quyền Hạn</th>
-                <th className="py-2.5 px-4">Lệnh Kết Nối Đầy Đủ</th>
-                <th className="py-2.5 px-4">Thời Gian Tạo</th>
-                <th className="py-2.5 px-4 text-right">Hành Động</th>
+                <th className="py-3 px-4">{t.ssh.colUser}</th>
+                <th className="py-3 px-4">{t.ssh.colRole}</th>
+                <th className="py-3 px-4">{t.ssh.colCmd}</th>
+                <th className="py-3 px-4">{t.ssh.colTime}</th>
+                <th className="py-3 px-4 text-right">{t.ssh.colAction}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60 font-sans">
-              {(session.ssh_users || [{ username: 'colab', role: 'root', created_at: 'Khởi tạo' }]).map((u: SSHUser) => {
+            <tbody className="divide-y divide-slate-800/60">
+              {userList.map((u) => {
                 const userCmd = `ssh ${u.username}@${sshHost} -p ${sshPort}`;
                 return (
-                  <tr key={u.username} className="hover:bg-slate-900/40 transition-colors">
-                    <td className="py-3 px-4 font-mono font-bold text-white">
-                      {u.username}
-                    </td>
-                    <td className="py-3 px-4">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-emerald-950/60 text-emerald-400 border border-emerald-800/40">
-                        {u.role || 'sudo'}
-                      </span>
-                    </td>
+                  <tr key={u.username} className="hover:bg-slate-900/50 transition-colors">
+                    <td className="py-3 px-4 font-mono font-bold text-white">{u.username}</td>
+                    <td className="py-3 px-4 font-mono text-emerald-400">{u.role || 'sudo'}</td>
                     <td className="py-3 px-4 font-mono text-slate-300">
                       <div className="flex items-center gap-2">
-                        <span className="truncate max-w-[280px]">{userCmd}</span>
+                        <span>{userCmd}</span>
                         <button
+                          type="button"
                           onClick={() => copyCommand(userCmd)}
-                          className="text-[10px] text-cyan-400 hover:text-cyan-300 underline"
+                          className="text-[11px] text-cyan-400 hover:text-cyan-300 underline"
                         >
-                          Copy
+                          {t.telemetry.copyBtn}
                         </button>
                       </div>
                     </td>
-                    <td className="py-3 px-4 text-slate-400 text-[11px]">
-                      {u.created_at || 'Mặc định'}
+                    <td className="py-3 px-4 font-mono text-slate-400 tabular-nums">
+                      {u.created_at}
                     </td>
                     <td className="py-3 px-4 text-right">
                       <button
+                        type="button"
                         onClick={() => setShowPasswordModal({ open: true, targetUser: u.username })}
-                        className="px-2.5 py-1 text-[11px] font-medium text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg transition-colors whitespace-nowrap"
+                        className="px-3 py-1.5 text-xs font-semibold text-slate-200 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg transition-colors whitespace-nowrap"
                       >
-                        🔑 Đổi mật khẩu
+                        {t.ssh.changePwdBtn}
                       </button>
                     </td>
                   </tr>
@@ -215,132 +206,144 @@ export const SSHManager: React.FC<SSHManagerProps> = ({
             </tbody>
           </table>
         </div>
+
+        {/* MOBILE VIEW: Dedicated Touch-First Stacked Cards */}
+        <div className="sm:hidden space-y-2.5">
+          {userList.map((u) => {
+            const userCmd = `ssh ${u.username}@${sshHost} -p ${sshPort}`;
+            return (
+              <div
+                key={u.username}
+                className="p-3.5 rounded-xl border border-slate-800 bg-slate-950/80 space-y-2.5"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="font-mono font-bold text-sm text-white">
+                    {u.username}{' '}
+                    <span className="text-xs font-normal text-emerald-400">· {u.role}</span>
+                  </div>
+                  <span className="text-[11px] font-mono text-slate-400">{u.created_at}</span>
+                </div>
+
+                <div className="p-2.5 rounded-lg bg-slate-900 font-mono text-xs text-emerald-400 truncate">
+                  {userCmd}
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => copyCommand(userCmd)}
+                    className="min-h-[40px] py-2 px-3 text-xs font-semibold text-cyan-300 bg-slate-900 border border-slate-800 rounded-lg"
+                  >
+                    {t.telemetry.copyBtn} SSH
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowPasswordModal({ open: true, targetUser: u.username })}
+                    className="min-h-[40px] py-2 px-3 text-xs font-semibold text-slate-200 bg-slate-800 border border-slate-700 rounded-lg"
+                  >
+                    {t.ssh.changePwdBtn}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Modal: Create Custom User */}
+      {/* Add User Modal */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <form onSubmit={handleSubmitNewUser} className="max-w-md w-full bg-slate-900 border border-slate-700 rounded-2xl p-6 shadow-2xl space-y-4">
-            <h3 className="text-sm font-bold text-white flex items-center gap-2">
-              <span>✍️</span>
-              <span>Tạo Tài Khoản SSH Mới Tùy Chỉnh</span>
-            </h3>
+          <form
+            onSubmit={handleSubmitNewUser}
+            className="max-w-md w-full bg-slate-900 border border-slate-700 rounded-2xl p-6 shadow-2xl space-y-4"
+          >
+            <h3 className="text-base font-bold text-white">{t.ssh.customAddBtn}</h3>
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Tên User (không dấu, viết liền):</label>
+              <label className="block text-xs font-semibold text-slate-300 mb-1">
+                {t.ssh.colUser}
+              </label>
               <input
                 type="text"
                 required
                 value={newUsername}
                 onChange={(e) => setNewUsername(e.target.value)}
-                placeholder="VD: worker1, dev, bot"
-                className="w-full px-3 py-2 text-xs font-mono bg-slate-950 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-cyan-400"
+                placeholder="worker2"
+                className="w-full px-3.5 py-2.5 text-xs font-mono bg-slate-950 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-cyan-400"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Mật khẩu:</label>
+              <label className="block text-xs font-semibold text-slate-300 mb-1">Password</label>
               <input
                 type="text"
                 required
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="123456"
-                className="w-full px-3 py-2 text-xs font-mono bg-slate-950 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-cyan-400"
+                className="w-full px-3.5 py-2.5 text-xs font-mono bg-slate-950 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-cyan-400"
               />
             </div>
-            <div className="flex items-center justify-end gap-2 pt-2">
+            <div className="flex justify-end gap-2 pt-2">
               <button
                 type="button"
                 onClick={() => setShowAddModal(false)}
-                className="px-4 py-2 text-xs font-semibold text-slate-300 hover:text-white bg-slate-800 rounded-lg"
+                className="px-4 py-2 text-xs font-semibold text-slate-300 bg-slate-800 rounded-xl"
               >
-                Hủy
+                Cancel
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="px-4 py-2 text-xs font-semibold text-slate-950 bg-cyan-400 hover:bg-cyan-300 rounded-lg"
+                className="px-4 py-2 text-xs font-bold text-slate-950 bg-cyan-400 hover:bg-cyan-300 rounded-xl"
               >
-                {loading ? 'Đang tạo...' : 'Xác Nhận Tạo'}
+                Create
               </button>
             </div>
           </form>
         </div>
       )}
 
-      {/* Modal: Change Password */}
+      {/* Change Password Modal */}
       {showPasswordModal.open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
           <div className="max-w-md w-full bg-slate-900 border border-slate-700 rounded-2xl p-6 shadow-2xl space-y-4">
-            <h3 className="text-sm font-bold text-white flex items-center gap-2">
-              <span>🔑</span>
-              <span>
-                Đổi Mật Khẩu Cho: <span className="text-cyan-400 font-mono">{showPasswordModal.targetUser === 'ALL' ? 'TẤT CẢ USER' : showPasswordModal.targetUser}</span>
-              </span>
+            <h3 className="text-base font-bold text-white">
+              {t.ssh.changePwdBtn}:{' '}
+              <span className="text-cyan-400 font-mono">{showPasswordModal.targetUser}</span>
             </h3>
-
-            <p className="text-xs text-slate-400">
-              Chọn nhanh mật khẩu thông dụng hoặc tự gõ mật khẩu mới:
-            </p>
-
             <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => handleUpdatePassword('123456')}
-                className="py-2 px-3 text-xs font-mono bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-200 border border-slate-700"
-              >
-                123456
-              </button>
-              <button
-                type="button"
-                onClick={() => handleUpdatePassword('12345678')}
-                className="py-2 px-3 text-xs font-mono bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-200 border border-slate-700"
-              >
-                12345678
-              </button>
-              <button
-                type="button"
-                onClick={() => handleUpdatePassword('88888888')}
-                className="py-2 px-3 text-xs font-mono bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-200 border border-slate-700"
-              >
-                88888888
-              </button>
-              <button
-                type="button"
-                onClick={() => handleUpdatePassword(Math.random().toString(36).substring(2, 8))}
-                className="py-2 px-3 text-xs font-mono bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-200 border border-slate-700"
-              >
-                🎲 Ngẫu Nhiên
-              </button>
-            </div>
-
-            <div className="pt-2">
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Hoặc tự nhập mật khẩu mới:</label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={customPassword}
-                  onChange={(e) => setCustomPassword(e.target.value)}
-                  placeholder="Nhập mật khẩu..."
-                  className="flex-1 px-3 py-2 text-xs font-mono bg-slate-950 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-cyan-400"
-                />
+              {['123456', '12345678', '88888888', 'colab@123'].map((preset) => (
                 <button
+                  key={preset}
                   type="button"
-                  onClick={() => customPassword && handleUpdatePassword(customPassword)}
-                  disabled={!customPassword || loading}
-                  className="px-3 py-2 text-xs font-semibold text-slate-950 bg-emerald-400 hover:bg-emerald-300 disabled:opacity-50 rounded-lg"
+                  onClick={() => handleUpdatePassword(preset)}
+                  className="py-2.5 px-3 text-xs font-mono bg-slate-800 hover:bg-slate-700 rounded-xl text-white border border-slate-700"
                 >
-                  Lưu
+                  {preset}
                 </button>
-              </div>
+              ))}
             </div>
-
-            <div className="flex justify-end pt-2">
+            <div className="flex gap-2 pt-2">
+              <input
+                type="text"
+                value={customPassword}
+                onChange={(e) => setCustomPassword(e.target.value)}
+                placeholder="Custom password..."
+                className="flex-1 px-3.5 py-2 text-xs font-mono bg-slate-950 border border-slate-700 rounded-xl text-white"
+              />
+              <button
+                type="button"
+                onClick={() => customPassword && handleUpdatePassword(customPassword)}
+                className="px-4 py-2 text-xs font-bold text-slate-950 bg-emerald-400 rounded-xl"
+              >
+                Save
+              </button>
+            </div>
+            <div className="flex justify-end">
               <button
                 type="button"
                 onClick={() => setShowPasswordModal({ open: false, targetUser: '' })}
-                className="px-4 py-2 text-xs font-semibold text-slate-300 hover:text-white bg-slate-800 rounded-lg"
+                className="px-4 py-2 text-xs font-semibold text-slate-300 bg-slate-800 rounded-xl"
               >
-                Đóng
+                Close
               </button>
             </div>
           </div>

@@ -394,10 +394,10 @@ if os.path.exists("dist/assets"):
     app.mount("/assets", StaticFiles(directory="dist/assets"), name="assets")
 
 def get_spa_html():
-    if os.path.exists("dist/index.html"):
-        return FileResponse("dist/index.html")
     if os.path.exists("templates/index.html"):
         return FileResponse("templates/index.html")
+    if os.path.exists("dist/index.html"):
+        return FileResponse("dist/index.html")
     if os.path.exists("index.html"):
         return FileResponse("index.html")
     return HTMLResponse("<h1>Suzlab Colab</h1><p>Hệ thống đang khởi động...</p>")
