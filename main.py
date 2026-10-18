@@ -383,12 +383,39 @@ async def websocket_telemetry(websocket: WebSocket, machine_code: str):
     except WebSocketDisconnect:
         ws_manager.disconnect(machine_code, websocket)
 
-# --- Serve SPA / Fallback ---
+# --- Serve SPA / Static / Fallback ---
 
 @app.get("/health")
 def health():
     return {"status": "ok", "platform": "Suzlab Colab", "uptime": time.time()}
 
-# Mount dist directory if built
-if os.path.exists("dist"):
-    app.mount("/", StaticFiles(directory="dist", html=True), name="static")
+# Mount assets directory if dist/assets exists
+if os.path.exists("dist/assets"):
+    app.mount("/assets", StaticFiles(directory="dist/assets"), name="assets")
+
+def get_spa_html():
+    if os.path.exists("dist/index.html"):
+        return FileResponse("dist/index.html")
+    if os.path.exists("templates/index.html"):
+        return FileResponse("templates/index.html")
+    if os.path.exists("index.html"):
+        return FileResponse("index.html")
+    return HTMLResponse("<h1>Suzlab Colab</h1><p>Hệ thống đang khởi động...</p>")
+
+@app.get("/")
+async def serve_root():
+    return get_spa_html()
+
+@app.get("/{full_path:path}")
+async def serve_spa_fallback(full_path: str):
+    # Exclude API and WebSocket routes
+    if full_path.startswith("api/") or full_path.startswith("ws/") or full_path == "health":
+        raise HTTPException(status_code=404, detail="API route not found")
+    
+    # Check if a static file exists in dist
+    static_file = os.path.join("dist", full_path)
+    if os.path.exists(static_file) and os.path.isfile(static_file):
+        return FileResponse(static_file)
+        
+    return get_spa_html()
+
