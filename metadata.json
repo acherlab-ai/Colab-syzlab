@@ -1,0 +1,6 @@
+{
+  "name": "Suzlab Colab - 24/7 Google Colab Hosting & SSH Cloud SaaS",
+  "description": "Nền tảng dịch vụ cho thuê & treo hộ máy ảo Google Colab 24/7 triển khai trên Railway, tích hợp google-colab-cli và Telegram Bot @Colab_lab_bot.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

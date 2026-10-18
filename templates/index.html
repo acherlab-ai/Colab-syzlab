@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="vi" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Suzlab Colab - 24/7 Google Colab Hosting & SSH Cloud SaaS</title>
+    <meta name="description" content="Nền tảng dịch vụ cho thuê & treo hộ máy ảo Google Colab 24/7 triển khai trên Railway, tích hợp google-colab-cli và Telegram Bot @Colab_lab_bot." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              slate: {
+                950: '#070b14',
+                900: '#0f172a',
+                800: '#1e293b',
+                700: '#334155',
+              }
+            },
+            fontFamily: {
+              sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+              mono: ['"JetBrains Mono"', 'monospace'],
+            }
+          }
+        }
+      }
+    </script>
+  </head>
+  <body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-md">
+      <div class="max-w-7xl mx-auto flex items-center justify-between gap-8 px-6 py-3.5">
+        <a href="/" class="flex items-center gap-2 text-xl font-extrabold text-white tracking-tight">
+          <span class="text-cyan-400">⚡</span>
+          <span>SUZLAB COLAB</span>
+        </a>
+        <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-slate-300">
+          <a href="#hero" class="text-cyan-400 font-semibold">Trang Chủ</a>
+          <a href="#dashboard" class="hover:text-white">Bảng Điều Khiển</a>
+          <a href="#pricing" class="hover:text-white">Gói Dịch Vụ</a>
+          <a href="https://t.me/Colab_lab_bot" target="_blank" class="hover:text-white">Bot @Colab_lab_bot</a>
+          <a href="#ecosystem" class="hover:text-white">Hệ Sinh Thái Suzlab</a>
+        </nav>
+        <div>
+          <a href="#dashboard" class="px-4 py-2 text-xs font-bold text-slate-950 bg-cyan-400 hover:bg-cyan-300 rounded-lg shadow-sm">
+            ⚡ Vào Dashboard
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-7xl mx-auto px-6 py-12 space-y-12 w-full">
+      <div class="text-center max-w-3xl mx-auto space-y-4">
+        <div class="text-xs font-semibold tracking-wider uppercase text-cyan-400">
+          Dịch Vụ Đám Mây Độc Quyền Hệ Sinh Thái Suzlab
+        </div>
+        <h1 class="text-4xl sm:text-5xl font-extrabold text-white tracking-tight">
+          Treo Hộ Google Colab 24/7 & Cấp SSH Tự Động
+        </h1>
+        <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
+          Nền tảng chạy ngầm trên Railway kết nối trực tiếp qua <code class="text-cyan-300">google-colab-cli</code>. Không cần giữ máy, bảo mật nạp RAM qua stdin và quản lý 100% bằng nút bấm trên Telegram Bot <b class="text-white">@Colab_lab_bot</b>.
+        </p>
+      </div>
+
+      <!-- Quick Action Cards Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="p-6 rounded-2xl border border-slate-800 bg-slate-900/60">
+          <div class="text-2xl mb-2">⚡</div>
+          <h3 class="text-base font-bold text-white">Auto Free Tunnel</h3>
+          <p class="text-xs text-slate-400 mt-1">
+            Tự động mở cổng công khai bore.pub / pinggy.io mà không cần người dùng nhập bất kỳ token nào.
+          </p>
+        </div>
+        <div class="p-6 rounded-2xl border border-slate-800 bg-slate-900/60">
+          <div class="text-2xl mb-2">🔒</div>
+          <h3 class="text-base font-bold text-white">Zero Source-Code Exposure</h3>
+          <p class="text-xs text-slate-400 mt-1">
+            Script mã hóa 3 lớp nạp trực tiếp vào RAM qua luồng stdin. Không bao giờ lưu file .py trên Google Drive.
+          </p>
+        </div>
+        <div class="p-6 rounded-2xl border border-slate-800 bg-slate-900/60">
+          <div class="text-2xl mb-2">🤖</div>
+          <h3 class="text-base font-bold text-white">Bot @Colab_lab_bot 1-Chạm</h3>
+          <p class="text-xs text-slate-400 mt-1">
+            Bấm link định danh CL-XXXXXX để điều khiển Uptime, quản lý SSH user và đổi mật khẩu trên Telegram.
+          </p>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800/80 bg-slate-950 py-8 text-center text-xs text-slate-500">
+      © 2026 Hệ sinh thái Suzlab (colab.suzlab.com). Triển khai trên Railway với tối ưu hóa &lt; 150MB RAM.
+    </footer>
+  </body>
+</html>
